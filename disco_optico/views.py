@@ -4,7 +4,6 @@ from disco_optico.models import Image
 from rest_framework import mixins
 from rest_framework.response import Response
 from rest_framework import status
-# from firebase_admin import credentials, initialize_app, storage
 import pyrebase
 import numpy as np
 import cv2
@@ -33,22 +32,24 @@ class ImageViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin):
         storage = firebase_storage.storage()
 
         # Lectura de imagen del storage
-        url = storage.child("posts/35KCzS53lbfN541EdKWh/image0_test.jpg").get_url(None)
+        folder = ("images/{folder}/original").format(folder = serializer.data['name'])
+        url = storage.child(folder).get_url(None)
         req = urllib.request.urlopen(url)
         arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
         img = cv2.imdecode(arr, -1) # 'Load it as it is'
         gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        
+
         # Guarda en local la imagen temporalmente
-        cv2.imwrite('firebase/grises.png',gray_image)
-        cv2.imshow('gray', gray_image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        cv2.imwrite('firebase/grises.png', gray_image)
+        # cv2.imshow('gray', gray_image)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
 
         # Carga de imagen al storage
-        storage.child("posts/35KCzS53lbfN541EdKWh/disco_optico_gray").put("firebase/corazon.png")
-        
+        folder = ("images/{folder}/disco_optico").format(folder = serializer.data['name'])
+        storage.child(folder).put("firebase/grises.png")
+
         # Elimina la imagen
         os.remove("firebase/grises.png")
-        
-        return Response(serializer.data['name'], status=status.HTTP_201_CREATED)
+
+        return Response("Completado", status=status.HTTP_201_CREATED)
