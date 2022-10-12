@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'disco_optico.apps.DiscoOpticoConfig',
+    'drusas.apps.DrusasConfig'
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True

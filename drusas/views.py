@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from disco_optico.serializers import ImageSerializer
-from disco_optico.models import Image
+from drusas.serializers import ImageSerializer
+from drusas.models import Image
 from rest_framework import mixins
 from rest_framework.response import Response
 from rest_framework import status
@@ -31,13 +31,14 @@ class ImageViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin):
         firebase_storage = pyrebase.initialize_app(firebaseConfig)
         storage = firebase_storage.storage()
 
+        print("serializer", serializer.data)
         # Lectura de imagen del storage
         folder = ("{user}/{folder}/original").format(folder = serializer.data['name'], user = serializer.data['user'])
         url = storage.child(folder).get_url(None)
         req = urllib.request.urlopen(url)
         arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
         img = cv2.imdecode(arr, -1) # 'Load it as it is'
-        gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         # Guarda en local la imagen temporalmente
         cv2.imwrite('firebase/grises.png', gray_image)
@@ -46,10 +47,11 @@ class ImageViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin):
         # cv2.destroyAllWindows()
 
         # Carga de imagen al storage
-        folder = ("{user}/{folder}/disco_optico").format(folder = serializer.data['name'], user = serializer.data['user'])
+        folder = ("{user}/{folder}/drusas").format(folder = serializer.data['name'], user = serializer.data['user'])
         storage.child(folder).put("firebase/grises.png")
 
         # Elimina la imagen
         os.remove("firebase/grises.png")
 
-        return Response("Completada la segmentación del disco optico", status=status.HTTP_201_CREATED)
+        return Response("Completada la segmentación de drusas", status=status.HTTP_201_CREATED)
+

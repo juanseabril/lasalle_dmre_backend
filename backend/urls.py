@@ -19,4 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('disco_optico/', include('disco_optico.urls')),
+    path('drusas/', include('drusas.urls'))
 ]
