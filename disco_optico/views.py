@@ -10,7 +10,6 @@ import cv2
 import os
 import urllib
 import distancemap as dm
-import time
 
 class ImageViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin):
     queryset = Image.objects.all()
