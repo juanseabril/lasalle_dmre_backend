@@ -1,5 +1,5 @@
 asgiref==3.5.2
-certifi
+certifi @ file:///C:/b/abs_ac29jvt43w/croot/certifi_1665076682579/work/certifi
 charset-normalizer==2.1.1
 distance-map==1.0.1
 dj-database-url==1.0.0
