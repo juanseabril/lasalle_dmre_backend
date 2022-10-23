@@ -246,4 +246,4 @@ class ImageViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin):
             else:
                 return Response("No presenta glaucoma, el resultado del calculo es: {CDR}".format(CDR = CDR), status=status.HTTP_201_CREATED)
         except:
-            return Response("No se pudo calcular si el paciente tiene glaucoma", status=status.HTTP_201_CREATED)
+            return Response("No se ha podido calcular si el paciente tiene glaucoma", status=status.HTTP_201_CREATED)
