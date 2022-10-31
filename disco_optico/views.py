@@ -200,17 +200,18 @@ class ImageViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin):
 
         try:
             circles = cv2.HoughCircles(second,cv2.HOUGH_GRADIENT,1,500,param1=20,param2=20,minRadius=j[2],maxRadius=int(blur.shape[1]*0.5))
-            circles = np.uint16(np.around(circles))
-            for i in circles[0,:]:
-                # Se valida si el circulo se encuentra dentro del disco optico
-                distSqrt = math.sqrt(((i[0]-j[0])*(i[0]-j[0]))+((i[1]-j[1])*(i[1]-j[1])))
-                if (distSqrt + j[2] == i[2]) or (distSqrt + j[2] < i[2]):
-                    cv2.circle(crop_image_color,(i[0],i[1]),i[2],(0,0,255),2) # Contorno
-                    cv2.circle(crop_image_color,(i[0],i[1]),2,(0,0,255),3) # Centro
-                    # Area of the optic cup circle
-                    blank = np.zeros((crop_image.shape[0], crop_image.shape[1]), np.uint8)
-                    cv2.circle(blank,(i[0],i[1]),i[2],(255,255,255),-1)
-                    pixels_optic_cup = cv2.countNonZero(blank)
+            if type(circles) != type(None):
+                circles = np.uint16(np.around(circles))
+                for i in circles[0,:]:
+                    # Se valida si el circulo se encuentra dentro del disco optico
+                    distSqrt = math.sqrt(((int(i[0])-int(j[0]))*(int(i[0])-int(j[0])))+((int(i[1])-int(j[1]))*(int(i[1])-int(j[1]))))
+                    if (distSqrt + j[2] == i[2]) or (distSqrt + j[2] < i[2]):
+                        cv2.circle(crop_image_color,(i[0],i[1]),i[2],(0,0,255),2) # Contorno
+                        cv2.circle(crop_image_color,(i[0],i[1]),2,(0,0,255),3) # Centro
+                        # Area of the optic cup circle
+                        blank = np.zeros((crop_image.shape[0], crop_image.shape[1]), np.uint8)
+                        cv2.circle(blank,(i[0],i[1]),i[2],(255,255,255),-1)
+                        pixels_optic_cup = cv2.countNonZero(blank)
         finally:
             ########################################################################
             # Guarda en local la imagen temporalmente
@@ -236,14 +237,15 @@ class ImageViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin):
             storage.child(folder).put("firebase/grises.png")
             # Elimina la imagen
             os.remove("firebase/grises.png")
-            ##############################################################################
+            ############################################################################
 
         #Glaucoma diagnosis
         try:
-            CDR =  pixels_optic_disc / pixels_optic_cup
+            CDR = pixels_optic_disc / pixels_optic_cup
+            CDR = round(CDR, 2)
             if CDR > 0.5:
-                return Response("Presenta glaucoma, el resultado del calculo es: {CDR}".format(CDR = CDR), status=status.HTTP_201_CREATED)
+                return Response("Presenta glaucoma, el resultado del calculo es: {CDR}".format(CDR = CDR), status=status.HTTP_200_OK)
             else:
-                return Response("No presenta glaucoma, el resultado del calculo es: {CDR}".format(CDR = CDR), status=status.HTTP_201_CREATED)
+                return Response("No presenta glaucoma, el resultado del calculo es: {CDR}".format(CDR = CDR), status=status.HTTP_200_OK)
         except:
-            return Response("No se ha podido calcular si el paciente tiene glaucoma", status=status.HTTP_201_CREATED)
+            return Response("No se ha podido calcular si el paciente tiene glaucoma", status=status.HTTP_200_OK)
